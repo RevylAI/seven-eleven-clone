@@ -1,0 +1,5 @@
+node_modules/
+ios/
+android/
+convex/_generated/
+artifacts/

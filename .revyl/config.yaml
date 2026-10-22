@@ -1,0 +1,17 @@
+project:
+    id: 540e752a-a876-4bb3-96bb-731ae459e90e
+session:
+    idle_timeout_seconds: 1800
+build:
+    framework: react_native
+    profiles:
+        development:
+            ios:
+                app_id: 79d672ba-8aea-436b-bd22-5ea972c009cd
+                build_commands:
+                    - cd ios && if [ ! -d Pods ] || [ ! -d SevenElevenClone.xcworkspace ]; then pod install; fi && xcodebuild -workspace SevenElevenClone.xcworkspace -scheme 'SevenElevenClone' -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath build
+                output_path: ios/build/Build/Products/Debug-iphonesimulator/*.app
+            android:
+                build_commands:
+                    - cd android && ./gradlew assembleDebug
+                output_path: android/app/build/outputs/apk/debug/app-debug.apk

@@ -1,0 +1,56 @@
+{
+  "name": "seven-eleven-clone",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "android": "react-native run-android",
+    "ios": "react-native run-ios",
+    "lint": "eslint .",
+    "start": "react-native start",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p convex",
+    "test:backend": "vitest run",
+    "backend:dev": "convex dev",
+    "dev:ios": "revyl dev --profile development --platform ios --detach --json"
+  },
+  "dependencies": {
+    "@auth/core": "^0.41.1",
+    "@convex-dev/auth": "^0.0.96",
+    "@react-native-async-storage/async-storage": "^3.1.1",
+    "@react-native/new-app-screen": "0.83.1",
+    "convex": "^1.47.0",
+    "lucide-react-native": "^1.61.0",
+    "react": "19.2.0",
+    "react-native": "0.83.1",
+    "react-native-get-random-values": "^2.0.0",
+    "react-native-keychain": "^10.0.0",
+    "react-native-safe-area-context": "^5.5.2",
+    "react-native-svg": "^15.16.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.25.2",
+    "@babel/preset-env": "^7.25.3",
+    "@babel/runtime": "^7.25.0",
+    "@edge-runtime/vm": "^5.0.0",
+    "@react-native-community/cli": "20.0.0",
+    "@react-native-community/cli-platform-android": "20.0.0",
+    "@react-native-community/cli-platform-ios": "20.0.0",
+    "@react-native/babel-preset": "0.83.1",
+    "@react-native/eslint-config": "0.83.1",
+    "@react-native/metro-config": "0.83.1",
+    "@react-native/typescript-config": "0.83.1",
+    "@types/jest": "^29.5.13",
+    "@types/react": "^19.2.0",
+    "@types/react-test-renderer": "^19.1.0",
+    "convex-test": "^0.0.64",
+    "eslint": "^8.19.0",
+    "jest": "^29.6.3",
+    "prettier": "2.8.8",
+    "react-test-renderer": "19.2.0",
+    "typescript": "^5.8.3",
+    "vitest": "^4.1.12"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
