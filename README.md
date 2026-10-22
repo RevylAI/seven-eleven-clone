@@ -82,6 +82,8 @@ no shopper or manager credentials are published in this configuration.
 The preview recipe pins Xcode 26.2 and builds for Apple silicon simulators. Keep
 this pin until the native dependencies have been verified with a newer Xcode;
 the default Xcode 27 image rejects this React Native version's `fmt` dependency.
+It retains ad hoc simulator signing (`CODE_SIGN_IDENTITY=-`), matching the local
+simulator build, without requiring a developer certificate.
 
 The configuration is managed by `.revyl/config.yaml` on the default branch.
 Validate changes with `revyl config validate` before committing them.
