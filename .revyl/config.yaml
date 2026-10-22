@@ -18,11 +18,12 @@ build:
         pull-request:
             ios:
                 app_id: 73b0d7d9-de27-4f73-b13a-ad993dff6eb6
+                image: ios-macos-26-xcode-26.2
                 setup_commands:
                     - npm ci
                     - cd ios && pod install
                 build_commands:
-                    - xcodebuild -workspace ios/SevenElevenClone.xcworkspace -scheme SevenElevenClone -configuration Release -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath ios/build CODE_SIGNING_ALLOWED=NO
+                    - xcodebuild -workspace ios/SevenElevenClone.xcworkspace -scheme SevenElevenClone -configuration Release -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath ios/build CODE_SIGNING_ALLOWED=NO ARCHS=arm64
                 output_path: ios/build/Build/Products/Release-iphonesimulator/*.app
                 timeout_seconds: 1800
 pr_review:

@@ -79,6 +79,10 @@ to the PR. It uses a separate preview app in Revyl Benchmarks so development
 builds can continue using Metro. The baseline check opens the guest storefront;
 no shopper or manager credentials are published in this configuration.
 
+The preview recipe pins Xcode 26.2 and builds for Apple silicon simulators. Keep
+this pin until the native dependencies have been verified with a newer Xcode;
+the default Xcode 27 image rejects this React Native version's `fmt` dependency.
+
 The configuration is managed by `.revyl/config.yaml` on the default branch.
 Validate changes with `revyl config validate` before committing them.
 
