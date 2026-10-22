@@ -15,3 +15,36 @@ build:
                 build_commands:
                     - cd android && ./gradlew assembleDebug
                 output_path: android/app/build/outputs/apk/debug/app-debug.apk
+        pull-request:
+            ios:
+                app_id: 73b0d7d9-de27-4f73-b13a-ad993dff6eb6
+                setup_commands:
+                    - npm ci
+                    - cd ios && pod install
+                build_commands:
+                    - xcodebuild -workspace ios/SevenElevenClone.xcworkspace -scheme SevenElevenClone -configuration Release -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath ios/build CODE_SIGNING_ALLOWED=NO
+                output_path: ios/build/Build/Products/Release-iphonesimulator/*.app
+                timeout_seconds: 1800
+pr_review:
+    enabled: true
+    review_triggers:
+        paths: []
+        labels: []
+        drafts: false
+    build:
+        kind: revyl
+        profile: pull-request
+    proof_of_changes:
+        enabled: true
+        harness:
+            kind: revyl
+        always_verify:
+            - The app launches to the storefront with its product catalog visible, without signing in.
+        system_prompt: >-
+            This is a single-store demo with guest shopping. The storefront and
+            cart can be exercised without credentials. Purchases are simulated.
+            Verify the changed UI on the device and capture visible evidence.
+            The release simulator build bundles JavaScript and does not require Metro.
+    workflow_ids: []
+    strict_ci_check:
+        build: true

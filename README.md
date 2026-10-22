@@ -70,6 +70,18 @@ Revyl owns Metro and its relay. No Expo dependency or tunnel is used. JS/TS chan
 
 For automated text entry on the tested iOS session, clear the field with `revyl device clear-text`, then use `revyl device type --clear-first=false`. This avoids a last-character loss observed with the combined operation. `scripts/device-login.mjs` uses this path with privately provisioned credentials.
 
+## Pull request proof
+
+Revyl Proof of Changes is enabled for non-draft pull requests. The `pull-request`
+profile builds a standalone iOS Release simulator app with bundled JavaScript,
+then the Revyl agent exercises the changed UI and posts its verdict and evidence
+to the PR. It uses a separate preview app in Revyl Benchmarks so development
+builds can continue using Metro. The baseline check opens the guest storefront;
+no shopper or manager credentials are published in this configuration.
+
+The configuration is managed by `.revyl/config.yaml` on the default branch.
+Validate changes with `revyl config validate` before committing them.
+
 ## Checks
 
 ```sh
