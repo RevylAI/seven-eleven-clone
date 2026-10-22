@@ -172,7 +172,7 @@ export function Shop({
           </Pressable>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel="Shop the fresh food value menu"
+            accessibilityLabel="Shop fresh food"
             onPress={() => setCategory('Fresh Food')}
             style={s.hero}
           >
@@ -186,7 +186,7 @@ export function Shop({
                 <Text
                   style={{ fontSize: 12, fontWeight: '800', color: 'white' }}
                 >
-                  Order now
+                  Shop fresh food
                 </Text>
                 <ChevronRight color="white" size={15} />
               </View>
