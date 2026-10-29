@@ -7,14 +7,28 @@ import {
   ActivityIndicator,
   TextInput,
   TextInputProps,
+  ScrollView,
 } from 'react-native';
 import ChevronLeft from 'lucide-react-native/icons/chevron-left';
 export const colors = {
+  background: '#FFFFFF',
+  surface: '#FFFFFF',
   green: '#007F5B',
+  onAccent: '#FFFFFF',
   ink: '#111512',
-  muted: '#727772',
-  line: '#EBEEEB',
+  muted: '#657067',
+  line: '#DDE4DE',
   soft: '#F4F6F3',
+  accentSoft: '#E8F5EE',
+  error: '#B32C32',
+  errorSoft: '#F7E7E5',
+  warning: '#946411',
+  warningSoft: '#FFF2D9',
+  yellow: '#FFDF63',
+  onYellow: '#211B08',
+  hero: '#F9C6BA',
+  heroMuted: '#693B2C',
+  brandGreen: '#007F5B',
   orange: '#F47721',
 };
 export const money = (cents: number) => `$${(cents / 100).toFixed(2)}`;
@@ -45,7 +59,7 @@ export function Button({
       ]}
     >
       {busy ? (
-        <ActivityIndicator color={secondary ? colors.ink : 'white'} />
+        <ActivityIndicator color={secondary ? colors.ink : colors.onAccent} />
       ) : (
         <Text style={[ui.buttonText, secondary && { color: colors.ink }]}>
           {title}
@@ -88,7 +102,9 @@ export function Field({ label, ...props }: TextInputProps & { label: string }) {
       <Text style={ui.label}>{label}</Text>
       <TextInput
         accessibilityLabel={label}
-        placeholderTextColor="#9A9F9A"
+        placeholderTextColor={colors.muted}
+        selectionColor={colors.green}
+        keyboardAppearance="light"
         style={ui.input}
         {...props}
       />
@@ -99,17 +115,28 @@ export function Empty({
   title,
   body,
   children,
+  compact = false,
 }: {
   title: string;
   body: string;
   children?: React.ReactNode;
+  compact?: boolean;
 }) {
+  if (compact) {
+    return (
+      <View style={[ui.empty, { minHeight: 260 }]}>
+        <Text style={ui.title}>{title}</Text>
+        <Text style={[ui.body, { textAlign: 'center' }]}>{body}</Text>
+        {children}
+      </View>
+    );
+  }
   return (
-    <View style={ui.empty}>
+    <ScrollView style={{ flex: 1 }} contentContainerStyle={ui.empty}>
       <Text style={ui.title}>{title}</Text>
       <Text style={[ui.body, { textAlign: 'center' }]}>{body}</Text>
       {children}
-    </View>
+    </ScrollView>
   );
 }
 export function Brand({ small = false }: { small?: boolean }) {
@@ -129,7 +156,7 @@ export function Brand({ small = false }: { small?: boolean }) {
         style={{
           fontSize: small ? 5 : 7,
           fontWeight: '900',
-          color: colors.green,
+          color: colors.brandGreen,
           letterSpacing: 0.5,
         }}
       >
@@ -143,7 +170,7 @@ export function ErrorText({ text }: { text: string }) {
     <Text
       accessibilityRole="alert"
       style={{
-        color: '#B32C32',
+        color: colors.error,
         fontSize: 14,
         lineHeight: 20,
         marginBottom: 16,
@@ -154,8 +181,15 @@ export function ErrorText({ text }: { text: string }) {
   ) : null;
 }
 export const ui = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#FFF' },
-  content: { padding: 20, gap: 18, paddingBottom: 32 },
+  screen: { flex: 1, backgroundColor: colors.background },
+  content: {
+    padding: 20,
+    gap: 18,
+    paddingBottom: 32,
+    width: '100%',
+    maxWidth: 760,
+    alignSelf: 'center',
+  },
   title: {
     fontSize: 27,
     lineHeight: 33,
@@ -174,30 +208,36 @@ export const ui = StyleSheet.create({
   button: {
     minHeight: 52,
     borderRadius: 28,
-    backgroundColor: colors.ink,
+    backgroundColor: colors.green,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 22,
+    paddingVertical: 12,
   },
-  buttonText: { color: 'white', fontSize: 15, fontWeight: '700' },
+  buttonText: {
+    color: colors.onAccent,
+    fontSize: 15,
+    fontWeight: '700',
+    textAlign: 'center',
+  },
   secondary: {
-    backgroundColor: '#FFF',
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: '#D8DDD8',
+    borderColor: colors.line,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#DDE2DC',
+    borderColor: colors.line,
     borderRadius: 12,
     paddingHorizontal: 15,
     paddingVertical: 15,
     fontSize: 16,
     color: colors.ink,
-    backgroundColor: '#FFF',
+    backgroundColor: colors.surface,
     minHeight: 52,
   },
   header: {
-    height: 60,
+    minHeight: 60,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -205,7 +245,15 @@ export const ui = StyleSheet.create({
     borderBottomWidth: 1,
     borderColor: colors.line,
   },
-  headerTitle: { fontSize: 17, fontWeight: '700', color: colors.ink },
+  headerTitle: {
+    flex: 1,
+    textAlign: 'center',
+    paddingHorizontal: 8,
+    paddingVertical: 12,
+    fontSize: 17,
+    fontWeight: '700',
+    color: colors.ink,
+  },
   icon: {
     width: 42,
     height: 42,
@@ -223,9 +271,18 @@ export const ui = StyleSheet.create({
     borderRadius: 18,
     borderWidth: 1,
     borderColor: colors.line,
-    backgroundColor: '#FFF',
+    backgroundColor: colors.surface,
   },
-  empty: { padding: 32, paddingTop: 80, gap: 18, alignItems: 'center' },
+  empty: {
+    padding: 28,
+    gap: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexGrow: 1,
+    width: '100%',
+    maxWidth: 640,
+    alignSelf: 'center',
+  },
   brand: {
     backgroundColor: '#FFF',
     borderRadius: 8,
@@ -238,17 +295,20 @@ export const ui = StyleSheet.create({
   },
   divider: { height: 1, backgroundColor: colors.line },
   pill: {
-    backgroundColor: '#E6F4EC',
+    backgroundColor: colors.accentSoft,
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 20,
   },
   pillText: { fontSize: 11, fontWeight: '700', color: colors.green },
   footer: {
+    width: '100%',
+    maxWidth: 760,
+    alignSelf: 'center',
     padding: 20,
     borderTopWidth: 1,
     borderColor: colors.line,
     gap: 14,
-    backgroundColor: 'white',
+    backgroundColor: colors.surface,
   },
 });

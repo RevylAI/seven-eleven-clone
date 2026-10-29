@@ -70,6 +70,27 @@ Revyl owns Metro and its relay. No Expo dependency or tunnel is used. JS/TS chan
 
 For automated text entry on the tested iOS session, clear the field with `revyl device clear-text`, then use `revyl device type --clear-first=false`. This avoids a last-character loss observed with the combined operation. `scripts/device-login.mjs` uses this path with privately provisioned credentials.
 
+## iPhone Duo preview
+
+The `duo` recipe builds a standalone iOS 27 simulator app for resize testing:
+
+```sh
+revyl build --profile duo --platform ios --remote --no-set-current --json
+```
+
+It uses Xcode 27.0, the newest currently available Revyl runner. Unlike the
+Xcode 26.2 compatibility build, it expands onto the inner display. The status
+area remains system-reserved; fully edge-to-edge iOS 27.1 behavior requires a
+27.1 build runner. Do not change binary metadata to simulate a newer SDK.
+
+The app uses scene-owned windows and available view width for layout. Opening
+and closing Duo keeps the same React screen mounted: cart quantities, search,
+checkout input, account forms, and inventory drafts survive resizing. Wide
+windows use more product columns, split product/checkout content, order and
+inventory grids, and a navigation rail. Forms remain a readable width. Compact
+windows retain the bottom tabs. Test both poses through the Revyl workspace's
+**Fold or unfold the device** control.
+
 ## Pull request proof
 
 Revyl Proof of Changes is enabled for non-draft pull requests. The `pull-request`
@@ -79,11 +100,12 @@ to the PR. It uses a separate preview app in Revyl Benchmarks so development
 builds can continue using Metro. The baseline check opens the guest storefront;
 no shopper or manager credentials are published in this configuration.
 
-The preview recipe pins Xcode 26.2 and builds for Apple silicon simulators. Keep
-this pin until the native dependencies have been verified with a newer Xcode;
-the default Xcode 27 image rejects this React Native version's `fmt` dependency.
-It retains ad hoc simulator signing (`CODE_SIGN_IDENTITY=-`), matching the local
-simulator build, without requiring a developer certificate.
+The preview recipe uses Xcode 27.0 and builds for Apple silicon simulators, so
+PR previews preserve Duo resizing. The Podfile applies a scoped compatibility
+patch to React Native 0.83.1's pinned `fmt` dependency for newer Apple Clang.
+It retains ad hoc simulator signing (`CODE_SIGN_IDENTITY=-`) without requiring
+a developer certificate. Local Duo development also requires Xcode 27 or later;
+older SDK builds run in the system's compatibility window.
 
 The configuration is managed by `.revyl/config.yaml` on the default branch.
 Validate changes with `revyl config validate` before committing them.

@@ -25,6 +25,7 @@ import {
 import { ProductArt } from '../components/ProductArt';
 import { useStore, Product, friendlyError } from '../lib/store';
 import { OrderCard } from './Orders';
+import { AdaptiveGrid } from '../components/layout';
 export function Manager({ onBack }: { onBack: () => void }) {
   const { me, setNotice } = useStore();
   const allowed = me?.role === 'manager';
@@ -82,7 +83,7 @@ export function Manager({ onBack }: { onBack: () => void }) {
             keyboardType="number-pad"
           />
           <View style={ui.row}>
-            <View>
+            <View style={{ flex: 1 }}>
               <Text style={ui.label}>Visible in storefront</Text>
               <Text style={ui.body}>Hide products without deleting them.</Text>
             </View>
@@ -90,7 +91,9 @@ export function Manager({ onBack }: { onBack: () => void }) {
               accessibilityLabel="Visible in storefront"
               value={active}
               onValueChange={setActive}
-              trackColor={{ true: colors.green }}
+              trackColor={{ false: colors.line, true: colors.green }}
+              thumbColor={colors.onAccent}
+              ios_backgroundColor={colors.line}
             />
           </View>
           <ErrorText text={error} />
@@ -128,7 +131,7 @@ export function Manager({ onBack }: { onBack: () => void }) {
   return (
     <View style={ui.screen}>
       <Header title="Store manager" onBack={onBack} />
-      <ScrollView contentContainerStyle={ui.content}>
+      <ScrollView contentContainerStyle={[ui.content, { maxWidth: 1040 }]}>
         <View>
           <Text
             style={{
@@ -147,7 +150,7 @@ export function Manager({ onBack }: { onBack: () => void }) {
           <View
             style={[
               ui.card,
-              { flex: 1, backgroundColor: '#E7F4EC', borderWidth: 0 },
+              { flex: 1, backgroundColor: colors.accentSoft, borderWidth: 0 },
             ]}
           >
             <Text
@@ -160,10 +163,12 @@ export function Manager({ onBack }: { onBack: () => void }) {
           <View
             style={[
               ui.card,
-              { flex: 1, backgroundColor: '#FFF2D9', borderWidth: 0 },
+              { flex: 1, backgroundColor: colors.warningSoft, borderWidth: 0 },
             ]}
           >
-            <Text style={{ fontSize: 30, fontWeight: '800', color: '#946411' }}>
+            <Text
+              style={{ fontSize: 30, fontWeight: '800', color: colors.warning }}
+            >
               {products?.filter(p => p.stock < 10).length ?? 0}
             </Text>
             <Text style={ui.body}>Low-stock items</Text>
@@ -188,7 +193,7 @@ export function Manager({ onBack }: { onBack: () => void }) {
                 alignItems: 'center',
                 padding: 13,
                 borderRadius: 9,
-                backgroundColor: tab === t ? 'white' : 'transparent',
+                backgroundColor: tab === t ? colors.surface : 'transparent',
               }}
             >
               <Text
@@ -225,7 +230,7 @@ export function Manager({ onBack }: { onBack: () => void }) {
               </Pressable>
             </View>
             {!orders ? (
-              <ActivityIndicator />
+              <ActivityIndicator color={colors.green} />
             ) : (filter === 'Active'
                 ? activeOrders
                 : orders.filter(o =>
@@ -233,6 +238,7 @@ export function Manager({ onBack }: { onBack: () => void }) {
                   )
               ).length === 0 ? (
               <Empty
+                compact
                 title={
                   filter === 'Active'
                     ? 'All caught up.'
@@ -241,36 +247,38 @@ export function Manager({ onBack }: { onBack: () => void }) {
                 body="New orders will appear here automatically."
               />
             ) : (
-              (filter === 'Active'
-                ? activeOrders
-                : orders.filter(o =>
-                    ['completed', 'cancelled'].includes(o.status),
-                  )
-              ).map(o => (
-                <OrderCard
-                  manager
-                  key={o._id}
-                  order={o}
-                  busy={busy === o._id}
-                  onAdvance={
-                    ['completed', 'cancelled'].includes(o.status)
-                      ? undefined
-                      : async () => {
-                          setBusy(o._id);
-                          try {
-                            await advance({
-                              id: o._id,
-                              expectedStatus: o.status,
-                            });
-                          } catch (e) {
-                            setNotice(friendlyError(e));
-                          } finally {
-                            setBusy('');
+              <AdaptiveGrid>
+                {(filter === 'Active'
+                  ? activeOrders
+                  : orders.filter(o =>
+                      ['completed', 'cancelled'].includes(o.status),
+                    )
+                ).map(o => (
+                  <OrderCard
+                    manager
+                    key={o._id}
+                    order={o}
+                    busy={busy === o._id}
+                    onAdvance={
+                      ['completed', 'cancelled'].includes(o.status)
+                        ? undefined
+                        : async () => {
+                            setBusy(o._id);
+                            try {
+                              await advance({
+                                id: o._id,
+                                expectedStatus: o.status,
+                              });
+                            } catch (e) {
+                              setNotice(friendlyError(e));
+                            } finally {
+                              setBusy('');
+                            }
                           }
-                        }
-                  }
-                />
-              ))
+                    }
+                  />
+                ))}
+              </AdaptiveGrid>
             )}
           </>
         ) : (
@@ -280,49 +288,51 @@ export function Manager({ onBack }: { onBack: () => void }) {
               Price, availability and stock update live for shoppers.
             </Text>
             {!products ? (
-              <ActivityIndicator />
+              <ActivityIndicator color={colors.green} />
             ) : (
-              products.map(p => (
-                <Pressable
-                  key={p._id}
-                  onPress={() => {
-                    setEditing(p);
-                    setPrice((p.price / 100).toFixed(2));
-                    setStock(String(p.stock));
-                    setActive(p.active);
-                    setError('');
-                  }}
-                  accessibilityRole="button"
-                  accessibilityLabel={`Edit ${p.name}`}
-                  style={[
-                    ui.card,
-                    {
-                      flexDirection: 'row',
-                      gap: 12,
-                      alignItems: 'center',
-                      padding: 12,
-                    },
-                  ]}
-                >
-                  <ProductArt kind={p.image} size={54} />
-                  <View style={{ flex: 1 }}>
-                    <Text style={ui.label}>{p.name}</Text>
-                    <Text style={ui.body}>
-                      {money(p.price)} · {p.stock} in stock
-                    </Text>
-                    <Text
-                      style={{
-                        color: p.active ? colors.green : colors.muted,
-                        fontSize: 10,
-                        fontWeight: '700',
-                      }}
-                    >
-                      {p.active ? 'VISIBLE' : 'HIDDEN'}
-                    </Text>
-                  </View>
-                  <ChevronRight size={18} color={colors.muted} />
-                </Pressable>
-              ))
+              <AdaptiveGrid>
+                {products.map(p => (
+                  <Pressable
+                    key={p._id}
+                    onPress={() => {
+                      setEditing(p);
+                      setPrice((p.price / 100).toFixed(2));
+                      setStock(String(p.stock));
+                      setActive(p.active);
+                      setError('');
+                    }}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Edit ${p.name}`}
+                    style={[
+                      ui.card,
+                      {
+                        flexDirection: 'row',
+                        gap: 12,
+                        alignItems: 'center',
+                        padding: 12,
+                      },
+                    ]}
+                  >
+                    <ProductArt kind={p.image} size={54} />
+                    <View style={{ flex: 1 }}>
+                      <Text style={ui.label}>{p.name}</Text>
+                      <Text style={ui.body}>
+                        {money(p.price)} · {p.stock} in stock
+                      </Text>
+                      <Text
+                        style={{
+                          color: p.active ? colors.green : colors.muted,
+                          fontSize: 10,
+                          fontWeight: '700',
+                        }}
+                      >
+                        {p.active ? 'VISIBLE' : 'HIDDEN'}
+                      </Text>
+                    </View>
+                    <ChevronRight size={18} color={colors.muted} />
+                  </Pressable>
+                ))}
+              </AdaptiveGrid>
             )}
           </>
         )}

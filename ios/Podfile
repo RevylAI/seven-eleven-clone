@@ -24,6 +24,15 @@ target 'SevenElevenClone' do
   )
 
   post_install do |installer|
+    # RN 0.83.1 pins fmt 11.0.2. Its Apple-clang consteval detection breaks
+    # with newer toolchains; disable consteval in this pinned version idempotently.
+    fmt_header = File.join(installer.sandbox.root, 'fmt/include/fmt/base.h')
+    if File.exist?(fmt_header)
+      source = File.read(fmt_header)
+      patched = source.sub('#if !defined(__cpp_lib_is_constant_evaluated)',
+        "#if defined(__apple_build_version__)\n#  define FMT_USE_CONSTEVAL 0\n#elif !defined(__cpp_lib_is_constant_evaluated)")
+      File.write(fmt_header, patched) if patched != source
+    end
     react_native_post_install(
       installer,
       config[:reactNativePath],

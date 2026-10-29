@@ -6,6 +6,7 @@ import Clock3 from 'lucide-react-native/icons/clock-3';
 import { api } from '../../convex/_generated/api';
 import { Header, Button, Empty, ui, colors, money } from '../components/ui';
 import { useStore, friendlyError } from '../lib/store';
+import { AdaptiveGrid } from '../components/layout';
 export const statusLabel: Record<string, string> = {
   placed: 'Order received',
   preparing: 'Being prepared',
@@ -30,8 +31,8 @@ export function OrderCard({
   const position = stages.indexOf(order.status);
   return (
     <View style={[ui.card, { gap: 14 }]}>
-      <View style={ui.row}>
-        <View>
+      <View style={[ui.row, { flexWrap: 'wrap', gap: 12 }]}>
+        <View style={{ flex: 1, minWidth: 150 }}>
           <Text style={ui.label}>
             Order #{order._id.slice(-6).toUpperCase()}
           </Text>
@@ -46,13 +47,15 @@ export function OrderCard({
         <View
           style={[
             ui.pill,
-            order.status === 'cancelled' && { backgroundColor: '#F7E7E5' },
+            order.status === 'cancelled' && {
+              backgroundColor: colors.errorSoft,
+            },
           ]}
         >
           <Text
             style={[
               ui.pillText,
-              order.status === 'cancelled' && { color: '#AD4238' },
+              order.status === 'cancelled' && { color: colors.error },
             ]}
           >
             {statusLabel[order.status]}
@@ -68,7 +71,7 @@ export function OrderCard({
                 height: 4,
                 borderRadius: 3,
                 flex: 1,
-                backgroundColor: i <= position ? colors.green : '#E7EAE4',
+                backgroundColor: i <= position ? colors.green : colors.line,
               }}
             />
           ))}
@@ -133,44 +136,46 @@ export function Orders({ onBack }: { onBack: () => void }) {
           <Button title="Start shopping" onPress={onBack} />
         </Empty>
       ) : (
-        <ScrollView contentContainerStyle={ui.content}>
+        <ScrollView contentContainerStyle={[ui.content, { maxWidth: 1040 }]}>
           <View style={{ flexDirection: 'row', gap: 9 }}>
             <Clock3 size={18} color={colors.green} />
-            <Text style={ui.body}>
+            <Text style={[ui.body, { flex: 1 }]}>
               Live updates from your neighborhood store
             </Text>
           </View>
-          {orders.map(o => (
-            <OrderCard
-              key={o._id}
-              order={o}
-              busy={busy === o._id}
-              onCancel={() =>
-                Alert.alert(
-                  'Cancel this order?',
-                  'The items will be returned to the store’s inventory.',
-                  [
-                    { text: 'Keep order', style: 'cancel' },
-                    {
-                      text: 'Cancel order',
-                      style: 'destructive',
-                      onPress: async () => {
-                        setBusy(o._id);
-                        try {
-                          await cancel({ id: o._id, guestToken });
-                          setNotice('Order cancelled');
-                        } catch (e) {
-                          setNotice(friendlyError(e));
-                        } finally {
-                          setBusy('');
-                        }
+          <AdaptiveGrid>
+            {orders.map(o => (
+              <OrderCard
+                key={o._id}
+                order={o}
+                busy={busy === o._id}
+                onCancel={() =>
+                  Alert.alert(
+                    'Cancel this order?',
+                    'The items will be returned to the store’s inventory.',
+                    [
+                      { text: 'Keep order', style: 'cancel' },
+                      {
+                        text: 'Cancel order',
+                        style: 'destructive',
+                        onPress: async () => {
+                          setBusy(o._id);
+                          try {
+                            await cancel({ id: o._id, guestToken });
+                            setNotice('Order cancelled');
+                          } catch (e) {
+                            setNotice(friendlyError(e));
+                          } finally {
+                            setBusy('');
+                          }
+                        },
                       },
-                    },
-                  ],
-                )
-              }
-            />
-          ))}
+                    ],
+                  )
+                }
+              />
+            ))}
+          </AdaptiveGrid>
         </ScrollView>
       )}
     </View>

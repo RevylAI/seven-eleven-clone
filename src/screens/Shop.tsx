@@ -21,6 +21,7 @@ import TicketPercent from 'lucide-react-native/icons/ticket-percent';
 import { Brand, colors, money, ui } from '../components/ui';
 import { ProductArt } from '../components/ProductArt';
 import { useStore, Product } from '../lib/store';
+import { useLayout } from '../components/layout';
 const categories = [
   'All',
   'Fresh Food',
@@ -39,6 +40,7 @@ export function Shop({
   openCart: () => void;
 }) {
   const { products, me, cart, quantity } = useStore();
+  const { cardWidth, contentWidth, expanded } = useLayout();
   const [category, setCategory] = useState('All');
   const [search, setSearch] = useState('');
   const filtered = products?.filter(
@@ -54,7 +56,12 @@ export function Shop({
     <ScrollView
       style={ui.screen}
       keyboardShouldPersistTaps="handled"
-      contentContainerStyle={{ paddingBottom: 24 }}
+      contentContainerStyle={{
+        paddingBottom: 24,
+        width: '100%',
+        maxWidth: 1160,
+        alignSelf: 'center',
+      }}
     >
       <View style={s.header}>
         <View style={ui.row}>
@@ -88,7 +95,7 @@ export function Shop({
           </Pressable>
         </View>
         <View style={[ui.row, { marginTop: 16 }]}>
-          <View>
+          <View style={{ flex: 1, minWidth: 0 }}>
             <Text style={s.greeting}>
               Hi, {me?.name?.split(' ')[0] || 'neighbor'}!
             </Text>
@@ -109,21 +116,25 @@ export function Shop({
           </Pressable>
         </View>
         <View style={s.search}>
-          <Search size={19} color="#777D77" />
+          <Search size={19} color={colors.muted} />
           <TextInput
             accessibilityLabel="Search products"
             value={search}
             onChangeText={setSearch}
             placeholder="Search snacks, drinks & more"
-            placeholderTextColor="#7E847E"
+            placeholderTextColor={colors.muted}
+            selectionColor={colors.green}
+            keyboardAppearance="light"
             style={s.searchInput}
           />
           {search !== '' && (
             <Pressable
               accessibilityLabel="Clear search"
+              accessibilityRole="button"
               onPress={() => setSearch('')}
+              style={ui.icon}
             >
-              <Text style={{ fontSize: 20 }}>×</Text>
+              <Text style={{ fontSize: 20, color: colors.ink }}>×</Text>
             </Pressable>
           )}
         </View>
@@ -141,7 +152,9 @@ export function Shop({
             onPress={() => setCategory(c)}
             style={[s.chip, category === c && s.activeChip]}
           >
-            <Text style={[s.chipText, category === c && { color: '#FFF' }]}>
+            <Text
+              style={[s.chipText, category === c && { color: colors.onAccent }]}
+            >
               {c}
             </Text>
           </Pressable>
@@ -174,7 +187,7 @@ export function Shop({
             accessibilityRole="button"
             accessibilityLabel="Shop fresh food"
             onPress={() => setCategory('Fresh Food')}
-            style={s.hero}
+            style={[s.hero, expanded && { minHeight: 240 }]}
           >
             <View style={s.heroCopy}>
               <Text style={s.tag}>BIG CRAVINGS. SMALL PRICES.</Text>
@@ -184,22 +197,42 @@ export function Shop({
               </Text>
               <View style={s.heroButton}>
                 <Text
-                  style={{ fontSize: 12, fontWeight: '800', color: 'white' }}
+                  style={{
+                    fontSize: 12,
+                    fontWeight: '800',
+                    color: colors.onAccent,
+                  }}
                 >
                   Shop fresh food
                 </Text>
-                <ChevronRight color="white" size={15} />
+                <ChevronRight color={colors.onAccent} size={15} />
               </View>
             </View>
-            <View style={s.heroImage}>
-              <ProductArt kind={featured?.image ?? 'pizza'} size={179} />
+            <View style={[s.heroImage, expanded && { right: 40, top: -10 }]}>
+              <ProductArt
+                kind={featured?.image ?? 'pizza'}
+                size={expanded ? 280 : Math.min(179, contentWidth * 0.52)}
+              />
             </View>
-            <View style={s.priceCircle}>
-              <Text style={{ fontSize: 10, fontWeight: '700' }}>
+            <View
+              style={[s.priceCircle, expanded && { right: 24, bottom: 18 }]}
+            >
+              <Text
+                style={{
+                  fontSize: 10,
+                  fontWeight: '700',
+                  color: colors.onYellow,
+                }}
+              >
                 FRESH FINDS
               </Text>
               <Text
-                style={{ fontSize: 27, fontWeight: '900', letterSpacing: -1 }}
+                style={{
+                  fontSize: 27,
+                  fontWeight: '900',
+                  letterSpacing: -1,
+                  color: colors.onYellow,
+                }}
               >
                 {featured ? money(featured.price) : 'Fresh!'}
               </Text>
@@ -209,7 +242,7 @@ export function Shop({
       )}
       <View style={{ paddingHorizontal: 20, marginTop: 23 }}>
         <View style={ui.row}>
-          <Text style={ui.subtitle}>
+          <Text style={[ui.subtitle, { flex: 1 }]}>
             {search
               ? `Results for “${search}”`
               : category === 'All'
@@ -239,14 +272,17 @@ export function Shop({
         ) : (
           <View style={s.grid}>
             {filtered?.map(p => (
-              <View key={p._id} style={s.product}>
+              <View key={p._id} style={[s.product, { width: cardWidth }]}>
                 <Pressable
                   accessibilityRole="button"
                   accessibilityLabel={`View ${p.name}`}
                   onPress={() => openProduct(p)}
                 >
                   <View style={s.art}>
-                    <ProductArt kind={p.image} size={146} />
+                    <ProductArt
+                      kind={p.image}
+                      size={Math.min(180, cardWidth - 12)}
+                    />
                   </View>
                   {p.badge && (
                     <Text style={s.badge}>
@@ -277,7 +313,7 @@ export function Shop({
                   )}
                 </Pressable>
                 {p.stock === 0 && (
-                  <Text style={{ fontSize: 11, color: '#B32C32' }}>
+                  <Text style={{ fontSize: 11, color: colors.error }}>
                     Sold out
                   </Text>
                 )}
@@ -287,7 +323,7 @@ export function Shop({
         )}
         <View style={s.storeNote}>
           <MapPin color={colors.green} size={18} />
-          <View>
+          <View style={{ flex: 1 }}>
             <Text
               style={{ fontSize: 13, fontWeight: '700', color: colors.ink }}
             >
@@ -349,10 +385,10 @@ const s = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 22,
   },
-  activeChip: { backgroundColor: colors.ink },
-  chipText: { fontSize: 12, fontWeight: '600', color: '#535A53' },
+  activeChip: { backgroundColor: colors.green },
+  chipText: { fontSize: 12, fontWeight: '600', color: colors.muted },
   rewards: {
-    backgroundColor: '#E8F5EE',
+    backgroundColor: colors.accentSoft,
     borderRadius: 12,
     marginHorizontal: 20,
     padding: 13,
@@ -360,21 +396,31 @@ const s = StyleSheet.create({
   rewardsTitle: {
     fontSize: 13,
     fontWeight: '800',
-    color: '#095D43',
+    color: colors.green,
     flex: 1,
     marginLeft: 8,
   },
-  rewardsBody: { fontSize: 11, color: '#447660', marginTop: 6, marginLeft: 30 },
+  rewardsBody: {
+    fontSize: 11,
+    color: colors.muted,
+    marginTop: 6,
+    marginLeft: 30,
+  },
   hero: {
-    height: 190,
+    minHeight: 210,
     marginHorizontal: 20,
     marginTop: 16,
-    backgroundColor: '#F9C6BA',
+    backgroundColor: colors.hero,
     borderRadius: 17,
     overflow: 'hidden',
   },
-  heroCopy: { padding: 16, zIndex: 2 },
-  tag: { fontSize: 8, fontWeight: '900', letterSpacing: 0.7, color: '#773728' },
+  heroCopy: { padding: 16, zIndex: 2, maxWidth: '66%' },
+  tag: {
+    fontSize: 8,
+    fontWeight: '900',
+    letterSpacing: 0.7,
+    color: colors.heroMuted,
+  },
   heroTitle: {
     fontSize: 27,
     lineHeight: 28,
@@ -383,9 +429,14 @@ const s = StyleSheet.create({
     color: colors.ink,
     marginTop: 10,
   },
-  heroSub: { fontSize: 12, lineHeight: 17, marginTop: 8, color: '#53392F' },
+  heroSub: {
+    fontSize: 12,
+    lineHeight: 17,
+    marginTop: 8,
+    color: colors.heroMuted,
+  },
   heroButton: {
-    backgroundColor: colors.ink,
+    backgroundColor: colors.green,
     borderRadius: 22,
     alignSelf: 'flex-start',
     paddingHorizontal: 13,
@@ -407,7 +458,7 @@ const s = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: '#FFDF63',
+    backgroundColor: colors.yellow,
     justifyContent: 'center',
     alignItems: 'center',
     transform: [{ rotate: '9deg' }],
@@ -415,12 +466,11 @@ const s = StyleSheet.create({
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    gap: 22,
+    gap: 20,
   },
-  product: { width: '47%', position: 'relative', paddingBottom: 3 },
+  product: { position: 'relative', paddingBottom: 3 },
   art: {
-    backgroundColor: '#F5F6F3',
+    backgroundColor: colors.soft,
     height: 148,
     borderRadius: 12,
     alignItems: 'center',
@@ -428,7 +478,8 @@ const s = StyleSheet.create({
     overflow: 'hidden',
   },
   badge: {
-    backgroundColor: '#FFE176',
+    backgroundColor: colors.yellow,
+    color: colors.onYellow,
     paddingVertical: 3,
     paddingHorizontal: 5,
     fontSize: 10,
@@ -455,14 +506,14 @@ const s = StyleSheet.create({
     position: 'absolute',
     right: 7,
     top: 109,
-    width: 32,
-    height: 32,
+    width: 44,
+    height: 44,
     borderRadius: 18,
-    backgroundColor: 'white',
+    backgroundColor: colors.soft,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: '#E8EAE5',
+    borderColor: colors.line,
   },
   count: {
     position: 'absolute',
@@ -475,7 +526,7 @@ const s = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  countText: { fontSize: 10, fontWeight: '800', color: 'white' },
+  countText: { fontSize: 10, fontWeight: '800', color: colors.onAccent },
   storeNote: {
     marginTop: 32,
     backgroundColor: colors.soft,

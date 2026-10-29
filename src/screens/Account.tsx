@@ -113,7 +113,10 @@ export function Account({
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         <Header title="Edit profile" onBack={() => go('menu')} />
-        <View style={ui.content}>
+        <ScrollView
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={ui.content}
+        >
           <Field
             label="Your name"
             value={name}
@@ -137,7 +140,7 @@ export function Account({
               }
             }}
           />
-        </View>
+        </ScrollView>
       </KeyboardAvoidingView>
     );
   if (mode !== 'menu' && !me)
@@ -229,7 +232,7 @@ export function Account({
             width: 66,
             height: 66,
             borderRadius: 35,
-            backgroundColor: '#E4F2E9',
+            backgroundColor: colors.accentSoft,
             alignItems: 'center',
             justifyContent: 'center',
             marginTop: 10,
