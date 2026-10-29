@@ -12,7 +12,7 @@ const account = JSON.parse(
 )[role];
 function run(args) {
   const result = spawnSync(
-    'revyl',
+    process.env.REVYL_CLI || 'revyl',
     ['device', ...args, '-s', sessionId, '--json'],
     { encoding: 'utf8' },
   );

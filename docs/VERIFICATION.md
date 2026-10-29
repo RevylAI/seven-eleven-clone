@@ -2,6 +2,52 @@
 
 Verified on October 22, 2026 against the shared Convex development deployment. This is a demo storefront, not a production commerce or payment system.
 
+## iPhone Duo update — October 28, 2026
+
+Verified on the Revyl **iPhone Duo / iOS 27.1** simulator using its Folded and
+Unfolded controls. The app now uses a scene-owned window and live view widths.
+The outer display uses two product columns and bottom tabs; the inner display
+uses three product columns, a navigation rail, split product/checkout content,
+and two-column manager/order grids. Forms remain scrollable and width-limited.
+
+- App: **Seven Eleven Clone iOS**, `79d672ba-8aea-436b-bd22-5ea972c009cd`.
+- Latest standalone preview: **duo-preview-20261028**,
+  `908e60cc-f19b-4915-b899-f4ec94ea7729`.
+- This is byte-identical to the final tested build
+  `af31a2bb-c340-4566-86b0-197af5186407` (SHA-256 starts `318437425d51`).
+- [Device session and recorded steps](https://app.revyl.ai/sessions/8ea99e0f-c67d-4581-8ce1-362ee0249b19).
+- TypeScript, quiet ESLint, plist/Ruby syntax checks, Revyl configuration
+  validation, and all **18 tests** passed (12 layout cases and six backend tests).
+
+Observed coverage across the two displays:
+
+| Area | Exercised states and transitions |
+| --- | --- |
+| Storefront | Every category; matching/empty search; pickup-store dialog; guest and authenticated greetings; two/three-column product layouts. |
+| Product | Details, quantity changes, stock availability, and disabled sold-out action. Quantity 2 survived folding. The fixed footer now explicitly says **Sold out** even when the stock explanation is offscreen. |
+| Cart/checkout | Empty and populated carts, hidden/unavailable item, disabled checkout, missing-name error, keyboard entry, guest and authenticated checkout, and confirmation. The pickup-name draft and total survived unfolding. A guest cart with one pizza and a $7.58 total survived app termination and relaunch. |
+| Accounts | Guest menu, signup and signup validation, successful shopper registration, invalid credentials, sign-in/out, profile editing, and shopper denial of manager access. An unsaved profile name survived folding and saved successfully. |
+| Orders | Empty history, guest-order claim after registration, received, preparing, ready, completed, and cancelled states. A test order completed the manager lifecycle; the pre-existing active order was left untouched. |
+| Manager | Authorized sign-in, active queue, history, two-column inventory, invalid-price error, price/stock/visibility changes, and low-stock display. Unsaved price, stock, and visibility values survived folding. |
+
+Revyl semantic validations passed for the wide storefront, checkout state,
+profile draft, manager grid, inventory draft, unavailable cart, and the corrected
+sold-out action in both sizes. Device screenshots and private account details
+are kept under ignored `artifacts/private/duo/`. Test inventory was restored;
+demo order history is retained for inspection.
+
+A transient Revyl API TLS timeout interrupted the first restart attempt before
+the app was terminated. Session/worker/device health checks passed; retrying on
+the same session completed the restart and persistence validation successfully.
+
+The build uses the newest available Revyl image, **Xcode 27.0**. An iOS 27.1
+simulator is available, but a 27.1 build image was not. Consequently the system
+status strip remains reserved; full SDK 27.1 edge-to-edge behavior is not
+verified. This follows [Apple's SDK compatibility guidance](https://developer.apple.com/iphone-duo/prepare/).
+Physical hardware, intermediate hinge angles, multiwindow, extreme Dynamic Type,
+network-failure injection, and an empty manager dataset were not tested. This
+matrix describes the exercised states, not every possible backend/input combination.
+
 ## Build and static checks
 
 - Bare React Native 0.83.1 / React 19.2; native iOS Debug simulator build succeeded.

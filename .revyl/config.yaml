@@ -5,9 +5,22 @@ session:
 build:
     framework: react_native
     profiles:
+        duo:
+            ios:
+                app_id: 79d672ba-8aea-436b-bd22-5ea972c009cd
+                image: ios-macos-26-xcode-27.0
+                setup_commands:
+                    - npm ci
+                    - cd ios && pod install
+                build_commands:
+                    - xcodebuild -version && xcodebuild -showsdks
+                    - xcodebuild -workspace ios/SevenElevenClone.xcworkspace -scheme SevenElevenClone -configuration Release -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath ios/build CODE_SIGN_IDENTITY=- ARCHS=arm64
+                output_path: ios/build/Build/Products/Release-iphonesimulator/*.app
+                timeout_seconds: 1800
         development:
             ios:
                 app_id: 79d672ba-8aea-436b-bd22-5ea972c009cd
+                image: ios-macos-26-xcode-27.0
                 build_commands:
                     - cd ios && if [ ! -d Pods ] || [ ! -d SevenElevenClone.xcworkspace ]; then pod install; fi && xcodebuild -workspace SevenElevenClone.xcworkspace -scheme 'SevenElevenClone' -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath build
                 output_path: ios/build/Build/Products/Debug-iphonesimulator/*.app
@@ -18,7 +31,7 @@ build:
         pull-request:
             ios:
                 app_id: 73b0d7d9-de27-4f73-b13a-ad993dff6eb6
-                image: ios-macos-26-xcode-26.2
+                image: ios-macos-26-xcode-27.0
                 setup_commands:
                     - npm ci
                     - cd ios && pod install
